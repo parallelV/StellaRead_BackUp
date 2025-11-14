@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>StellaRead — Book Details</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #222;
+      --muted: #555;
+      --accent: #2f6bed;
+      --btn: #31493c;
+      --btn-text: #fff;
+      --shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    [data-theme="dark"] {
+      --bg: #1d1b16;
+      --card: #26231b;
+      --text: #f1f1f1;
+      --muted: #aaa;
+      --btn: #7aa37a;
+      --btn-text: #111;
+      --shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', 'Poppins', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      transition: .3s background, .3s color;
+      font-size: 1.05rem;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    header .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    nav button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      margin-left: 10px;
+      font-weight: 600;
+      color: var(--accent);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: .2s;
+    }
+
+    nav button:hover {
+      background: rgba(47,107,237,0.1);
+    }
+
+    main {
+      max-width: 700px;
+      margin: 2.5rem auto;
+      padding: 1.2rem;
+    }
+
+    .book-card {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 2rem;
+    }
+
+    .book-cover {
+      display: block;
+      width: 240px;
+      height: auto;
+      object-fit: contain;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      margin: 0 auto 1.5rem auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .book-cover:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+    }
+
+    .book-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .book-author,
+    .book-genre,
+    .book-rating,
+    .book-overview {
+      font-size: 1rem;
+      color: var(--text);
+      margin: 0.4rem 0;
+      line-height: 1.6;
+    }
+
+    .rating-stars {
+      font-size: 1.3rem;
+      color: #f5a623;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .rating-stars:active {
+      transform: scale(1.1);
+    }
+
+    .divider {
+      border: 1px solid #ccc;
+      margin: 1rem 0;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-evenly;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .btn {
+      background: var(--btn);
+      color: var(--btn-text);
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .heart {
+      font-size: 1.7rem;
+      color: var(--accent);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .heart:hover {
+      transform: scale(1.2);
+    }
+
+    #popup, #reviewPopup {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .popup-box {
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+      width: 340px;
+      animation: pop .3s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .popup-box h2 {
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .popup-box button {
+      margin-top: 1rem;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: var(--btn);
+      color: var(--btn-text);
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    #reviewPopup textarea {
+      width: 100%;
+      height: 120px;
+      border-radius: 8px;
+      padding: 10px;
+      resize: none;
+      border: 1px solid #ccc;
+      margin-top: 0.5rem;
+      color: var(--text);
+      background: var(--card);
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <header>
+    <div class="left">
+      <img src="logo.png" alt="StellaRead" width="80">
+      <div>
+        <div class="brand">StellaRead</div>
+      </div>
+    </div>
+    <nav>
+      <button onclick="window.location.href='try.html'">🏠 Home</button>
+      <button id="toggleTheme">🌙</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="book-card">
+      <img class="book-cover" src="book covers/fck.jpg" alt="Book Cover">
+      <div class="book-title">
+        THE SUBTLE ART OF NOT GIVING A F*CK - 2016
+        <span class="heart" id="heart">♡</span>
+      </div>
+      <hr class="divider">
+      <div class="book-author"><strong>Author:</strong> Mark Manson</div>
+      <div class="book-genre"><strong>Genre:</strong> Nonfiction self-help</div>
+      <div class="book-rating"><strong>Rating:</strong> <span class="rating-stars" id="ratingStars">⭐⭐⭐⭐☆</span></div>
+      <p class="book-overview">
+        “The Subtle Art of Not Giving a F*ck” is a refreshing take on modern self-help,
+        written by Mark Manson. It challenges the conventional idea of positivity and
+        encourages readers to embrace life’s struggles with honesty and courage — focusing
+        only on what truly matters instead of chasing constant ha ppiness.
+      </p>
+
+      <div class="actions">
+        <a href ="https://nibmehub.com/opac-service/pdf/read/The%20Subtle%20Art%20of%20Not%20Giving%20a%20Fck%20A%20Counterintuitive%20Approach%20to%20Living%20a%20Good%20Life%20by%20Mark%20Manson%20(z-lib.org).pdf">
+        <button class="btn">📖 Read Book</button></a>
+        <button class="btn" id="writeReviewBtn">✍️ Write a Review</button>
+        <button class="btn" id="deleteReviewBtn">🗑️ Delete Review</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="popup">
+    <div class="popup-box">
+      <h2>✅ Task Completed!</h2>
+      <p id="popupMsg"></p>
+      <button id="closePopup">OK</button>
+    </div>
+  </div>
+
+  <div id="reviewPopup">
+    <div class="popup-box">
+      <h2>✍️ Write Your Review</h2>
+      <textarea id="reviewText" placeholder="Write your thoughts here..."></textarea>
+      <button id="submitReview">Submit</button>
+    </div>
+  </div>
+
+  <script>
+    const popup = document.getElementById('popup');
+    const popupMsg = document.getElementById('popupMsg');
+    const closePopup = document.getElementById('closePopup');
+
+    function showPopup(msg) {
+      popupMsg.textContent = msg;
+      popup.style.display = 'flex';
+    }
+
+    closePopup.addEventListener('click', () => popup.style.display = 'none');
+
+    // Task 6
+    document.getElementById('ratingStars').addEventListener('click', () => {
+      showPopup("You've accomplished Task 6 — Star clicked!");
+    });
+
+    // Task 7
+    const reviewPopup = document.getElementById('reviewPopup');
+    const writeReviewBtn = document.getElementById('writeReviewBtn');
+    const submitReview = document.getElementById('submitReview');
+
+    writeReviewBtn.addEventListener('click', () => {
+      reviewPopup.style.display = 'flex';
+    });
+
+    submitReview.addEventListener('click', () => {
+      reviewPopup.style.display = 'none';
+      showPopup("You've accomplished Task 7 — Review submitted!");
+    });
+
+    // Task 8
+    document.getElementById('deleteReviewBtn').addEventListener('click', () => {
+      showPopup("You've accomplished Task 8 — Review deleted!");
+    });
+
+    // Task 9
+    const heart = document.getElementById('heart');
+    let liked = false;
+    heart.addEventListener('click', () => {
+      liked = !liked;
+      heart.textContent = liked ? '❤️' : '♡';
+      showPopup("You've accomplished Task 9 — Added to favorites!");
+    });
+
+    // Close review popup on outside click
+    reviewPopup.addEventListener('click', (e) => {
+      if (e.target === reviewPopup) reviewPopup.style.display = 'none';
+    });
+
+    // Dark theme toggle
+    const toggleTheme = document.getElementById("toggleTheme");
+    const currentTheme = localStorage.getItem("theme") || "light";
+    document.body.setAttribute("data-theme", currentTheme);
+    toggleTheme.textContent = currentTheme === "dark" ? "☀️" : "🌙";
+
+    toggleTheme.addEventListener("click", () => {
+      const theme = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      document.body.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+      toggleTheme.textContent = theme === "dark" ? "☀️" : "🌙";
+    });
+  </script>
+</body>
+</html>

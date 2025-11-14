@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>StellaRead — Profile & Main</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f6f4ef; --card:#fff; --text:#222; --muted:#6b6b6b; --accent:#2f6bed; --btn:#31493c; --btn-text:#fff; --shadow:0 4px 20px rgba(0,0,0,0.08); --radius:16px;
+}
+[data-theme="dark"] {
+  --bg:#171614; --card:#22201d; --text:#f2f2f2; --muted:#a8a8a8; --accent:#7ca9ff; --btn:#7aa37a; --btn-text:#111; --shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+* { box-sizing:border-box; font-family:'Poppins',sans-serif; transition: background 0.3s ease, color 0.3s ease; }
+body { margin:0; background:var(--bg); color:var(--text); min-height:100vh; }
+header { display:flex; justify-content:space-between; align-items:center; padding:1rem 2rem; background:var(--card); box-shadow:var(--shadow); position:sticky; top:0; z-index:1000; }
+header .left { display:flex; align-items:center; gap:14px; }
+header img { height:60px; width:60px; object-fit:cover; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+.brand { font-size:1.3rem; font-weight:700; color:var(--text); }
+nav button { background:transparent; border:none; cursor:pointer; margin-left:10px; font-weight:600; color:var(--accent); padding:8px 14px; border-radius:8px; transition: all 0.2s ease; }
+nav button:hover { background: rgba(47,107,237,0.1); transform:translateY(-1px); }
+main { max-width:1000px; margin:2rem auto; padding:0 1rem; }
+
+/* cards n inputs */
+.card { background:var(--card); padding:2rem; border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:2rem; }
+label { display:block; margin-top:1rem; font-size:0.9rem; color:var(--muted); font-weight:600; }
+input, textarea, select { width:100%; padding:12px 14px; border-radius:10px; border:1px solid #ccc; background:transparent; color:var(--text); margin-top:0.3rem; font-size:0.95rem; }
+input:focus, textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(47,107,237,0.1); outline:none; }
+textarea { min-height:80px; resize:vertical; }
+.btn { background:var(--btn); color:var(--btn-text); border:none; border-radius:10px; padding:12px 18px; font-weight:600; cursor:pointer; margin-top:1.2rem; font-size:1rem; transition:0.2s ease-in-out; box-shadow:0 6px 14px rgba(0,0,0,0.12); }
+.btn:hover { transform:translateY(-1px); opacity:0.9; box-shadow:0 8px 18px rgba(0,0,0,0.15); }
+#btnl { background-color:#d64b4b; }
+
+/* toolbar */
+.toolbar { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; align-items:center; justify-content:space-between; }
+.search { flex:1; display:flex; gap:0.6rem; }
+.search input { flex:1; border:1px solid #ccc; border-radius:8px; padding:10px 12px; }
+select { border:1px solid #ccc; border-radius:8px; padding:10px; font-weight:500; background: var(--card); }
+
+/* books */
+.book-grid { display:flex; flex-direction:column; gap:1.5rem; max-width:700px; margin:0 auto; }
+.book { display:flex; justify-content:space-between; align-items:center; background:var(--card); border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08); padding:1.2rem; border:1px solid rgba(0,0,0,0.05); transition: all 0.25s ease; cursor:pointer; }
+.book:hover { transform:scale(1.015); box-shadow:0 6px 22px rgba(0,0,0,0.15); }
+.book-info { flex:1; padding-right:1.5rem; }
+.book-info h3 { margin:0; font-size:1.15rem; font-weight:600; color:var(--text); }
+.book-info p { margin:0.3rem 0; color:var(--muted); font-size:0.9rem; }
+.book-info .rating { color:#f5a623; font-size:1.2rem; margin:0.3rem 0 0.6rem; }
+.book img { width:130px; height:auto; object-fit:contain; border-radius:8px; border:1px solid rgba(0,0,0,0.08); }
+
+/* pop up ng books */
+#bookPopup { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index:2000; }
+#bookPopup .box { position:relative; background:var(--card); color:var(--text); padding:2rem; border-radius:18px; max-width:450px; width:90%; text-align:center; display:flex; flex-direction:column; align-items:center; gap:1rem; box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+#bookPopup button.close { position:absolute; top:12px; right:12px; background:transparent; border:none; font-size:1.4rem; cursor:pointer; color:var(--muted); }
+#bookPopup .actions { display:flex; gap:0.5rem; margin-top:0.8rem; flex-wrap:wrap; }
+#bookPopup .actions button { flex:1; min-width:100px; }
+.review-section { display:none; flex-direction:column; gap:0.5rem; width:100%; margin-top:1rem; }
+.review-section textarea { min-height:60px; }
+.review-stars span { font-size:1.4rem; cursor:pointer; color:#ccc; }
+.review-stars span.selected { color:#f5a623; }
+
+/* tasks popup */
+#taskPopup { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.45); z-index:3000; }
+#taskPopup .box { background:var(--card); color:var(--text); padding:2rem; border-radius:18px; text-align:center; width:320px; box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+#taskPopup .box h2 { margin:0 0 0.5rem; color:var(--accent); font-weight:700; }
+#taskPopup .box p { margin:0 0 1rem; color:var(--muted); }
+#taskPopup .box button { margin-top:0.5rem; background:var(--btn); color:var(--btn-text); border:none; border-radius:8px; padding:10px 16px; cursor:pointer; font-weight:600; }
+</style>
+</head>
+<body data-theme="light">
+  <header>
+    <div class="left">
+      <img src="logo.png" alt="StellaRead logo">
+      <div>
+        <div class="brand">Your Digital Library</div>
+        <div style="font-size:.9rem;color:var(--muted)">— StellaRead</div>
+      </div>
+    </div>
+    <nav>
+      <button id="navProfile">Profile</button>
+      <button id="navHome">Home</button>
+      <button id="tasks">Tasks 📝</button>
+      <button id="toggleTheme">Theme 🌙</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="profilePage" class="card">
+      <h2>👤 Profile</h2>
+      <form id="profileForm">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" value="Guest Reader">
+
+        <label for="email">Email</label>
+        <input type="email" id="email" value="guest@stellaread.com">
+
+        <label for="bio">Bio</label>
+        <textarea id="bio">Book lover and curious mind.</textarea>
+
+        <label for="dob">Date of Birth</label>
+        <input id="dob" type="date" required>
+
+        <label for="phone">Phone Number</label>
+        <input id="phone" type="tel" placeholder="09*********" required>
+
+        <button type="submit" class="btn">Save Profile</button>
+        <button type="button" class="btn" id="btnl">Log Out</button>
+      </form>
+    </section>
+
+    <section id="homePage" class="card" style="display:none;">
+      <div class="toolbar">
+        <div class="search">
+          <input type="text" id="searchInput" placeholder="Search by title or author...">
+          <button id="searchBtn" class="btn">Search</button>
+        </div>
+        <select id="sortSelect">
+          <option value="title">Sort by Title (A–Z)</option>
+          <option value="author">Sort by Author</option>
+          <option value="rating">Sort by Rating (High → Low)</option>
+          <option value="year-newest">Sort by Year Released (Newest → Oldest)</option>
+          <option value="year-oldest">Sort by Year Released (Oldest → Newest)</option>
+        </select>
+      </div>
+      <div id="bookList" class="book-grid"></div>
+    </section>
+
+    <!-- book popup -->
+    <div id="bookPopup">
+      <div class="box">
+        <button class="close" id="closeBookPopup">✖</button>
+        <img id="bookPopupCover" src="" alt="Book Cover" style="width:150px; border-radius:8px; border:1px solid rgba(0,0,0,0.1);">
+        <div style="display:flex; align-items:center; justify-content:center; gap:.5rem;">
+          <h3 id="bookPopupTitle" style="margin:0.5rem 0; color:var(--accent);"></h3>
+          <button id="favoriteButton" title="Add to Favorites" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">🤍</button>
+        </div>
+
+        <div id="bookPopupRating" style="color:#f5a623; font-size:1.2rem;"></div>
+        <p id="bookPopupAuthor" style="margin:0.3rem 0; color:var(--muted);"></p>
+        <p id="bookPopupDesc" style="color:var(--muted); margin:0.5rem 0;"></p>
+
+        <div class="actions">
+          <button id="viewBook" class="btn">View Book</button>
+          <button id="writeReview" class="btn">Write a Review</button>
+          <button id="deleteReview" class="btn">Delete Review</button>
+        </div>
+
+        <div class="review-section" id="reviewSection">
+          <div class="review-stars" id="reviewStars">
+            <span data-star="1">★</span>
+            <span data-star="2">★</span>
+            <span data-star="3">★</span>
+            <span data-star="4">★</span>
+            <span data-star="5">★</span>
+          </div>
+          <textarea id="reviewText" placeholder="Write your review here..."></textarea>
+          <button id="submitReview" class="btn">Submit Review</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- task popup -->
+    <div id="taskPopup">
+      <div class="box">
+        <h2>✅ Task Completed!</h2>
+        <p id="taskMsg"></p>
+        <button id="closeTaskPopup">OK</button>
+      </div>
+    </div>
+
+<script>
+// Data
+  const books = [
+    { title:"Harry Potter Vol. 1", author:"J.K. Rowling - 1997", rating:4, cover:"book covers/harry.jpg", description:"A young wizard's journey begins." },
+    { title:"The Subtle Art of Not Giving a F*ck", author:"Mark Manson - 2016", rating:5, cover:"book covers/fck.jpg", description:"A guide to living a better life." },
+    { title:"True Beauty", author:"Priscilla Wu - 2018", rating:4, cover:"book covers/tb.jpg", description:"A story about inner and outer beauty." },
+    { title:"The Road 🌫️🚶‍♂️", author:"Cormac McCarthy – 2006", rating:3, cover:"book covers/road.jpg", description:"A haunting tale of a father and son struggling to survive in a post-apocalyptic world." },
+    { title:"The Hunger Games 🏹🔥", author:"Suzanne Collins – 2008", rating:4, cover:"book covers/hunger.jpg", description:"A brave young girl fights for survival in a deadly televised competition." },
+    { title:"The Night Circus 🎪🌙", author:"Erin Morgenstern – 2011", rating:5, cover:"book covers/circus.jpg", description:"A magical circus becomes the stage for a fierce competition between two young illusionists." },
+    { title:"The Fault in Our Stars 💔💫", author:"John Green – 2012", rating:2, cover:"book covers/fault.jpg", description:"Two teens with cancer fall in love and learn the meaning of life, love, and loss." },
+    { title:"Gone Girl 🕵️‍♀️🌀", author:"Gillian Flynn – 2012", rating:4, cover:"book covers/gone.jpg", description:"A husband becomes the prime suspect when his wife mysteriously disappears." },
+    { title:"The Martian 🚀🪐", author:"Andy Weir – 2011", rating:3, cover:"book covers/martian.jpg", description:"An astronaut stranded on Mars uses science and wit to survive alone on the red planet." },
+    { title:"The Midnight Library ⏳📚", author:"Matt Haig – 2020", rating:3, cover:"book covers/midnight.jpg", description:"A woman explores alternate versions of her life in a mystical library between life and death." },
+    { title:"The Hobbit 💫👶", author:"J.R.R. Tolkien – 1937", rating:4, cover:"book covers/hobbit.PNG", description:"A timid hobbit embarks on an epic quest to reclaim a lost dwarven treasure guarded by a dragon." },
+    { title:"The Kite Runner 🪁🏃‍♂️", author:"Khaled Hosseini – 2003", rating:2, cover:"book covers/kite.jpg", description:"A man confronts his past and seeks redemption for a childhood betrayal in Afghanistan." }
+  ];
+
+  let displayedBooks = [...books];
+  let reviews = {};
+  let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+  let selectedBookIndex = null;
+
+  const list = document.getElementById("bookList");
+  const bookPopup = document.getElementById("bookPopup");
+  const bookPopupCover = document.getElementById("bookPopupCover");
+  const bookPopupTitle = document.getElementById("bookPopupTitle");
+  const bookPopupRating = document.getElementById("bookPopupRating");
+  const bookPopupAuthor = document.getElementById("bookPopupAuthor");
+  const closeBookPopup = document.getElementById("closeBookPopup");
+  const reviewSection = document.getElementById("reviewSection");
+  const reviewStars = document.getElementById("reviewStars");
+  const reviewText = document.getElementById("reviewText");
+  const favoriteButton = document.getElementById("favoriteButton");
+  const taskPopup = document.getElementById("taskPopup");
+  const taskMsg = document.getElementById("taskMsg");
+
+  // Utility Functions
+  function showTask(msg){
+    taskMsg.innerHTML = String(msg).replace(/\n/g, "<br>");
+    taskPopup.style.display = "flex";
+  }
+
+  function renderBooks(arr){
+    displayedBooks = arr;
+    list.innerHTML = "";
+    arr.forEach((book, i) => {
+      const stars = "⭐".repeat(book.rating) + "☆".repeat(5 - book.rating);
+      const div = document.createElement("div");
+      div.className = "book";
+      div.dataset.index = i;
+      div.innerHTML = `
+        <div class="book-info">
+          <h3>${book.title}</h3>
+          <div class="rating">${stars}</div>
+          <p>${book.author}</p>
+        </div>
+        <img src="${book.cover}" alt="${book.title}">
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function openBookPopup(bookIndex){
+    const book = displayedBooks[bookIndex];
+    selectedBookIndex = bookIndex;
+    bookPopupCover.src = book.cover;
+    bookPopupTitle.textContent = book.title;
+    bookPopupRating.textContent = "⭐".repeat(book.rating) + "☆".repeat(5 - book.rating);
+    bookPopupAuthor.textContent = book.author;
+    document.getElementById("bookPopupDesc").textContent = book.description;
+    updateFavoriteButton(book.title);
+    bookPopup.style.display = "flex";
+  }
+
+  function updateFavoriteButton(title){
+    favoriteButton.textContent = favorites.includes(title) ? "❤️" : "♡";
+  }
+
+  function clearReview(){
+    reviewText.value = "";
+    Array.from(reviewStars.children).forEach(s => s.classList.remove("selected"));
+  }
+
+  function getReviewRating(){
+    return Array.from(reviewStars.children).filter(s => s.classList.contains("selected")).length;
+  }
+
+  // Initial Render
+  renderBooks(displayedBooks);
+
+  // Navigation
+  const profile = document.getElementById("profilePage");
+  const home = document.getElementById("homePage");
+
+  document.getElementById("navProfile").addEventListener("click", ()=>{
+    profile.style.display = "block";
+    home.style.display = "none";
+  });
+
+  document.getElementById("navHome").addEventListener("click", ()=>{
+    profile.style.display = "none";
+    home.style.display = "block";
+    renderBooks(displayedBooks);
+  });
+
+  // Task Popup
+  document.getElementById("closeTaskPopup").addEventListener("click", ()=>{
+    taskPopup.style.display = "none";
+  });
+
+  // Search & Sort
+  document.getElementById("searchBtn").addEventListener("click", () => {
+  const term = document.getElementById("searchInput").value.toLowerCase();
+  const filtered = books.filter(b =>
+    b.title.toLowerCase().includes(term) || b.author.toLowerCase().includes(term)
+  );
+  renderBooks(filtered);
+  showTask("You accomplished Task 4 (Search a Book) — Please proceed to Task 5 (View Book Details).");
+  });
+
+document.getElementById("sortSelect").addEventListener("change", (e) => {
+  const v = e.target.value;
+
+  let arr = [...displayedBooks].map(book => {
+    const cleanTitle = book.title.replace(/[^\w\s]/g, '').trim().toLowerCase();
+    const cleanAuthor = book.author.replace(/[^\w\s]/g, '').trim().toLowerCase();
+    const yearMatch = book.author.match(/(\d{4})/);
+    const year = yearMatch ? parseInt(yearMatch[1]) : 0;
+    return { ...book, cleanTitle, cleanAuthor, year };
+  });
+
+  if (v === "title") {
+    arr.sort((a, b) => a.cleanTitle.localeCompare(b.cleanTitle));
+  } else if (v === "author") {
+    arr.sort((a, b) => a.cleanAuthor.localeCompare(b.cleanAuthor));
+  } else if (v === "rating") {
+    arr.sort((a, b) => b.rating - a.rating);
+  } else if (v === "year-newest") {
+    arr.sort((a, b) => b.year - a.year);
+  }else if (v === "year-oldest") {
+    arr.sort((a, b) => a.year - b.year);
+  }
+
+  renderBooks(arr.map(({ cleanTitle, cleanAuthor, year, ...book }) => book));
+
+  showTask("You accomplished Task 10 (Sort Books) — Please proceed to Task 11 (Toggle Theme Change).");
+});
+
+  // Dark/Light Theme
+  document.getElementById("toggleTheme").addEventListener("click", ()=>{
+    const current = document.body.getAttribute("data-theme");
+    document.body.setAttribute("data-theme", current==="dark" ? "light" : "dark");
+    showTask("You accomplished  (Toggle Theme) — Please proceed to Task 12 (Log Out).");
+  });
+
+  // tasks
+  document.getElementById("tasks").addEventListener("click", () => {
+    showTask(
+      "📋 StellaRead Usability Testing Tasks 📋" +
+      "<ol>" +
+        "<li>Sign Up</li>" +
+        "<li>Log In</li>" +
+        "<li>Edit Profile</li>" +
+        "<li>Search Books</li>" +
+        "<li>View Book Details</li>" +
+        "<li>Rate a Book</li>" +
+        "<li>Write a Review</li>" +
+        "<li>Edit/Delete Review</li>" +
+        "<li>Add to Favorites</li>" +
+        "<li>Sort Books</li>" +
+        "<li>Toggle Theme</li>" +
+        "<li>Log Out</li>" +
+      "</ol>"
+    );
+  });
+
+// Book Popup
+  list.addEventListener("click", (e)=>{
+    const div = e.target.closest(".book");
+    if(!div) return;
+    openBookPopup(div.dataset.index);
+    showTask("You’ve accomplished Task 5 (View Book Details) — Please proceed to Task 6 (Rate a Book).");
+  });
+
+  closeBookPopup.addEventListener("click", ()=>{ bookPopup.style.display = "none"; });
+  document.getElementById("writeReview").addEventListener("click", ()=>{ reviewSection.style.display = "flex"; });
+
+  // Review Stars
+  Array.from(reviewStars.children).forEach(span => {
+    span.addEventListener("click", ()=>{
+      const val = parseInt(span.dataset.star);
+      Array.from(reviewStars.children).forEach(s => s.classList.remove("selected"));
+      for(let i=0; i<val; i++) reviewStars.children[i].classList.add("selected");
+    });
+  });
+
+  // Submit Review
+  document.getElementById("submitReview").addEventListener("click", ()=>{
+    if(selectedBookIndex === null) return;
+    const book = displayedBooks[selectedBookIndex];
+    reviews[book.title] = {
+      rating: getReviewRating(),
+      text: reviewText.value.trim()
+    };
+    reviewSection.style.display = "none";
+    clearReview();
+    showTask(`You've Accomplished Task 6 and 7 (Rated and Reviewed "${book.title}") — Please proceed to Task 8 (Delete Review).`);
+  });
+
+  // Delete Review
+  document.getElementById("deleteReview").addEventListener("click", ()=>{
+    if(selectedBookIndex === null) return;
+    const book = displayedBooks[selectedBookIndex];
+    delete reviews[book.title];
+    showTask("You've Accomplished Task 8 (Delete a Review) — Please proceed to Task 9 (Add book to Favorites).");
+  });
+
+  // Favorites
+  favoriteButton.addEventListener("click", ()=>{
+    if(selectedBookIndex === null) return;
+    const title = displayedBooks[selectedBookIndex].title;
+    if(favorites.includes(title)){
+      favorites = favorites.filter(f => f !== title);
+      showTask(`Removed "${title}" from Favorites.`);
+    } else {
+      favorites.push(title);
+      showTask(`You've accomplished Task 9 (Added "${title}" to Favorites)! — Please proceed to Task 10 (Sort Books).`);
+    }
+    updateFavoriteButton(title);
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+  });
+
+  // Profile & DB
+  const scriptURL = "https://script.google.com/macros/s/AKfycbyDEvh_PdsRDCWqpY8qpvq7yif7fY6hZMNHKzG-D2alxqftJS8x37hzXk5NCyQQ4ZV-JA/exec";
+
+  async function loadProfile(){
+    const loginId = localStorage.getItem("stella_user");
+    if(!loginId){
+      alert("⚠️ Please log in first.");
+      window.location.href = "login.html";
+      return;
+    }
+    try {
+      const res = await fetch(`${scriptURL}?action=getProfile&username=${encodeURIComponent(loginId)}`);
+      const data = await res.json();
+      if(data.status === "success"){
+        document.getElementById("name").value = data.name || "";
+        document.getElementById("email").value = data.email || "";
+        document.getElementById("dob").value = data.dob || "";
+        document.getElementById("phone").value = data.phone || "";
+        localStorage.setItem("stella_user_canonical", data.username);
+      } else {
+        alert("⚠️ Could not load your profile data.");
+      }
+    } catch(err){
+      console.error(err);
+      alert("Network error while fetching profile data.");
+    }
+  }
+
+  document.getElementById("profileForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const originalUsername = localStorage.getItem("stella_user_canonical") || localStorage.getItem("stella_user");
+    const params = new URLSearchParams({
+      action: "updateProfile",
+      originalUsername,
+      name: document.getElementById("name").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      dob: document.getElementById("dob").value.trim(),
+      phone: document.getElementById("phone").value.trim()
+    });
+    try {
+      const res = await fetch(`${scriptURL}?${params.toString()}`, { method:"POST" });
+      const text = await res.text();
+      if(text === "updated"){
+        showTask("✅ Profile updated successfully! \n You've Accomplished Task 3 (Edit Profile) — Please proceed to Task 4 (Search a Book.)");
+        loadProfile();
+      } else {
+        alert("⚠️ Failed to update profile. Response: " + text);
+      }
+    } catch(err){
+      console.error(err);
+      alert("Network error while updating profile.");
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", loadProfile);
+
+  document.getElementById("btnl").addEventListener("click", e => {
+      e.preventDefault();
+      sessionStorage.clear();
+
+      const popup = document.createElement("div");
+      popup.style.position = "fixed";
+      popup.style.inset = "0";
+      popup.style.background = "rgba(0,0,0,0.5)";
+      popup.style.display = "flex";
+      popup.style.alignItems = "center";
+      popup.style.justifyContent = "center";
+      popup.style.zIndex = "1000";
+
+      popup.innerHTML = `
+        <div style="
+          background:#fff;
+          color:#222;
+          padding:2rem;
+          border-radius:14px;
+          max-width:400px;
+          text-align:center;
+          box-shadow:0 10px 30px rgba(0,0,0,0.3);
+          font-family:'Poppins',sans-serif;">
+          <h2 style="color:#2f6bed;margin-top:0;">✅ Task Completed!</h2>
+          <p style="margin:0.5rem 0 1rem;">You accomplished Task 12 (Log Out). This concludes the Usability Testing.</p>
+          <p style="margin-bottom:1rem;">Please proceed to answer the survey by clicking the link below:</p>
+          <a href="#" target="_blank" style="display:inline-block;color:#fff;background:#31493c;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600;">Go to Survey</a>
+          <br><br>
+          <button id="closeLogoutPopup" style="margin-top:8px;padding:8px 14px;border:none;border-radius:8px;background:#ccc;cursor:pointer;font-weight:600;">Close</button>
+        </div>
+      `;
+      document.body.appendChild(popup);
+
+      document.getElementById("closeLogoutPopup").addEventListener("click", () => {
+        popup.remove();
+        window.location.href = "login.html";
+      });
+    });
+
+</script>
+
+</body>
+</html>
+
